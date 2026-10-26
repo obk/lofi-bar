@@ -1,6 +1,10 @@
 // Lofi Bar audio player.
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
+// Note for reviewers: this file is intentionally not imported by
+// extension.js. playerProcess.js runs it as a subprocess (`gjs -m player.js`)
+// so that GStreamer never runs inside the gnome-shell process.
+//
 // Runs as a separate `gjs -m` process so that a misbehaving decoder or a
 // network stall can never take GNOME Shell down with it. The extension talks
 // to it with newline-delimited JSON: commands on stdin, events on stdout.

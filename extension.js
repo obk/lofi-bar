@@ -242,7 +242,7 @@ class LofiBarIndicator extends PanelMenu.Button {
             child: this._playIcon,
             accessible_name: 'Play',
         });
-        this._playButton.connect('clicked', () => this._togglePlayback());
+        this._playButton.connectObject('clicked', () => this._togglePlayback(), this);
         nowRow.add_child(this._playButton);
         this.menu.box.add_child(nowRow);
 
@@ -257,7 +257,7 @@ class LofiBarIndicator extends PanelMenu.Button {
         });
         this._slider = new Slider(this._volume);
         this._slider.accessible_name = 'Volume';
-        this._slider.connect('notify::value', () => this._onSliderChanged());
+        this._slider.connectObject('notify::value', () => this._onSliderChanged(), this);
         volumeRow.add_child(this._volumeIcon);
         volumeRow.add_child(this._slider);
         this.menu.box.add_child(volumeRow);
@@ -723,10 +723,33 @@ class LofiBarIndicator extends PanelMenu.Button {
             this._clearTimer(name);
 
         this._settings.disconnectObject(this);
+        this._playButton.disconnectObject(this);
+        this._slider.disconnectObject(this);
         this._player.destroy();
         this._http.destroy();
+
+        // Children would go with the indicator anyway; destroy them
+        // explicitly, leaves first, so every object has a clear owner.
+        this._playIcon.destroy();
+        this._playButton.destroy();
+        this._volumeIcon.destroy();
+        this._discoverSection.destroy();
+        this._discoverItem.destroy();
+        this._curatedSection.destroy();
+
+        this._playIcon = null;
+        this._playButton = null;
+        this._volumeIcon = null;
+        this._slider = null;
+        this._discoverSection = null;
+        this._discoverItem = null;
+        this._curatedSection = null;
         this._refreshItem = null;
         this._stationItems = [];
+        this._player = null;
+        this._http = null;
+        this._radioBrowser = null;
+        this._settings = null;
         super.destroy();
     }
 });
@@ -743,6 +766,13 @@ export default class LofiBarExtension extends Extension {
     }
 
     disable() {
+        // This extension declares the "unlock-dialog" session mode so that
+        // music keeps playing while the screen is locked: disable() is not
+        // called on lock, and the player process keeps running. While locked
+        // the indicator is hidden (see _syncSessionMode), so nothing can be
+        // controlled and no track info is shown on the lock screen. disable()
+        // runs when the user turns the extension off or logs out, and then
+        // stops playback and removes everything.
         Main.sessionMode.disconnectObject(this);
         this._indicator?.destroy();
         this._indicator = null;
