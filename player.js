@@ -1,9 +1,11 @@
 // Lofi Bar audio player.
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-// Note for reviewers: this file is intentionally not imported by
-// extension.js. playerProcess.js runs it as a subprocess (`gjs -m player.js`)
-// so that GStreamer never runs inside the gnome-shell process.
+// playerProcess.js imports PLAYER_PATH from this module and runs it as a
+// subprocess (`gjs -m player.js`). Importing it has no side effects: all
+// work, including loading GStreamer, happens in main(), which only runs when
+// this file is the program being executed. GStreamer therefore never loads
+// inside the gnome-shell process.
 //
 // Runs as a separate `gjs -m` process so that a misbehaving decoder or a
 // network stall can never take GNOME Shell down with it. The extension talks
@@ -24,8 +26,13 @@
 
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
-import Gst from 'gi://Gst?version=1.0';
 import System from 'system';
+
+/** Absolute path of this script, for spawning it as the player process. */
+export const PLAYER_PATH = GLib.filename_from_uri(import.meta.url)[0];
+
+// Loaded in main(), only inside the player process.
+let Gst = null;
 
 const USER_AGENT = 'LofiBar/1.0 (GNOME Shell extension; GStreamer)';
 
@@ -42,17 +49,6 @@ const TITLE_INTERVAL_US = 1000 * 1000;
 
 // GstPlayFlags: audio + soft-volume. No video, subtitles or visualisations.
 const PLAY_FLAGS = 0x2 | 0x10;
-
-GLib.set_prgname('lofi-bar');
-GLib.set_application_name('Lofi Bar');
-Gst.init(null);
-
-// Radio streams are plain HTTP. Adaptive-streaming demuxers (HLS, DASH,
-// Smooth Streaming) fetch the URIs listed in a playlist on their own,
-// file:// included, so a hostile "station" could make us read local files.
-// Rank NONE keeps them out of autoplugging.
-for (const name of ['hlsdemux', 'hlsdemux2', 'dashdemux', 'dashdemux2', 'mssdemux', 'mssdemux2'])
-    Gst.Registry.get().lookup_feature(name)?.set_rank(Gst.Rank.NONE);
 
 // Sequence number of the current play command; echoed on every event so
 // the extension can drop lines written for a previous station.
@@ -402,11 +398,7 @@ async function openStdin() {
     return new Gio.DataInputStream({base_stream: base});
 }
 
-const loop = new GLib.MainLoop(null, false);
-const player = new Player(loop);
-const stdin = await openStdin();
-
-function handle(line) {
+function handle(player, line) {
     let msg;
     try {
         msg = JSON.parse(line);
@@ -430,7 +422,7 @@ function handle(line) {
     }
 }
 
-function readNext() {
+function readNext(player, stdin) {
     stdin.read_line_async(GLib.PRIORITY_DEFAULT, null, (stream, res) => {
         let line;
         try {
@@ -446,11 +438,31 @@ function readNext() {
             return;
         }
         if (line.trim())
-            handle(line);
-        readNext();
+            handle(player, line);
+        readNext(player, stdin);
     });
 }
 
-readNext();
-loop.run();
-System.exit(0);
+async function main() {
+    GLib.set_prgname('lofi-bar');
+    GLib.set_application_name('Lofi Bar');
+    ({default: Gst} = await import('gi://Gst?version=1.0'));
+    Gst.init(null);
+
+    // Radio streams are plain HTTP. Adaptive-streaming demuxers (HLS, DASH,
+    // Smooth Streaming) fetch the URIs listed in a playlist on their own,
+    // file:// included, so a hostile "station" could make us read local
+    // files. Rank NONE keeps them out of autoplugging.
+    for (const name of ['hlsdemux', 'hlsdemux2', 'dashdemux', 'dashdemux2', 'mssdemux', 'mssdemux2'])
+        Gst.Registry.get().lookup_feature(name)?.set_rank(Gst.Rank.NONE);
+
+    const loop = new GLib.MainLoop(null, false);
+    const player = new Player(loop);
+    const stdin = await openStdin();
+    readNext(player, stdin);
+    loop.run();
+    System.exit(0);
+}
+
+if (System.programPath === PLAYER_PATH)
+    await main();

@@ -7,19 +7,19 @@
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 
+import {PLAYER_PATH} from './player.js';
+
 // How long a stopped player gets to exit on its own before we kill it.
 const EXIT_GRACE_S = 3;
 
 export class PlayerProcess {
     /**
-     * @param {string} playerPath - absolute path of player.js
      * @param {object} handlers
      * @param {(event: object) => void} handlers.onEvent - a parsed player event
      * @param {(message?: string) => void} handlers.onCrash - the player died
      *   (or could not start) without being asked to stop
      */
-    constructor(playerPath, {onEvent, onCrash}) {
-        this._playerPath = playerPath;
+    constructor({onEvent, onCrash}) {
         this._onEvent = onEvent;
         this._onCrash = onCrash;
         this._proc = null;
@@ -101,7 +101,7 @@ export class PlayerProcess {
 
         let proc;
         try {
-            proc = launcher.spawnv([gjs, '-m', this._playerPath]);
+            proc = launcher.spawnv([gjs, '-m', PLAYER_PATH]);
         } catch (e) {
             console.warn(`Lofi Bar: could not start the player: ${e.message}`);
             this._onCrash('Could not start the audio player (is gjs installed?)');

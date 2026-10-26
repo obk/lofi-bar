@@ -158,11 +158,10 @@ class LofiBarIndicator extends PanelMenu.Button {
         this._radioBrowser = new RadioBrowser(this._http, new Set(
             CURATED_STATIONS.flatMap(s => [...s.streams.map(stream => stream.url), ...s.aliases ?? []])
                 .map(urlKey)));
-        this._player = new PlayerProcess(
-            GLib.build_filenamev([extension.path, 'player.js']), {
-                onEvent: event => this._onPlayerEvent(event),
-                onCrash: message => this._onPlayerCrash(message),
-            });
+        this._player = new PlayerProcess({
+            onEvent: event => this._onPlayerEvent(event),
+            onCrash: message => this._onPlayerCrash(message),
+        });
 
         this._station = this._loadLastStation();
         this._status = 'stopped';
