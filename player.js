@@ -107,7 +107,7 @@ class Player {
         if (this._probe)
             this._pipeline.audio_filter = this._probe;
 
-        this._pipeline.connect('source-setup', (_pb, source) => {
+        this._sourceSetupId = this._pipeline.connect('source-setup', (_pb, source) => {
             if ('user_agent' in source)
                 source.user_agent = USER_AGENT;
             if ('timeout' in source)
@@ -118,7 +118,7 @@ class Player {
 
         this._bus = this._pipeline.get_bus();
         this._bus.add_signal_watch();
-        this._bus.connect('message', (_bus, msg) => this._onMessage(msg));
+        this._messageId = this._bus.connect('message', (_bus, msg) => this._onMessage(msg));
     }
 
     play(streams, volume, seq) {
@@ -153,9 +153,15 @@ class Player {
     }
 
     shutdown() {
+        if (this._shutDown)
+            return; // e.g. a quit command followed by stdin closing
+        this._shutDown = true;
         this._wanted = false;
         this._clearTimers();
         this._reset();
+        this._pipeline.disconnect(this._sourceSetupId);
+        this._bus.disconnect(this._messageId);
+        this._bus.remove_signal_watch();
         this._loop.quit();
     }
 

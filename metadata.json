@@ -10,6 +10,6 @@
     "unlock-dialog"
   ],
   "settings-schema": "org.gnome.shell.extensions.lofi-bar",
-  "version-name": "1.1",
+  "version-name": "1.2",
   "url": "https://github.com/obk/lofi-bar"
 }
