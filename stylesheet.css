@@ -1,0 +1,85 @@
+/* Text colours come from the shell theme (light or dark); secondary text is
+   dimmed with actor opacity in extension.js so it works in both. */
+
+.lofi-bar-menu {
+  min-width: 360px;
+}
+
+.lofi-bar-panel-label {
+  max-width: 220px;
+  padding-left: 6px;
+}
+
+.lofi-bar-now-playing,
+.lofi-bar-volume {
+  spacing: 12px;
+}
+
+.lofi-bar-now-station {
+  font-weight: bold;
+}
+
+.lofi-bar-now-title {
+  font-size: 0.95em;
+  padding-top: 2px;
+}
+
+.lofi-bar-now-status {
+  font-size: 0.82em;
+  padding-top: 3px;
+}
+
+.lofi-bar-now-status.lofi-bar-error {
+  color: #e5534b;
+}
+
+.lofi-bar-play-button {
+  padding: 10px;
+}
+
+.lofi-bar-play-button StIcon {
+  icon-size: 16px;
+}
+
+.lofi-bar-station-item {
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+
+.lofi-bar-station-text {
+  spacing: 8px;
+}
+
+.lofi-bar-station-name {
+  max-width: 230px;
+}
+
+.lofi-bar-station-genre {
+  font-size: 0.82em;
+  max-width: 130px;
+}
+
+.lofi-bar-now-station,
+.lofi-bar-now-title,
+.lofi-bar-now-status,
+.lofi-bar-refresh-status {
+  max-width: 300px;
+}
+
+.lofi-bar-badge {
+  font-size: 0.75em;
+  font-weight: bold;
+  font-feature-settings: "tnum";
+  padding: 2px 7px;
+  border-radius: 99px;
+  background-color: rgba(127, 127, 127, 0.22);
+}
+
+.lofi-bar-badge-lossless {
+  color: #1e1e1e;
+  background-color: #f8e45c;
+}
+
+.lofi-bar-refresh-status {
+  font-size: 0.82em;
+}

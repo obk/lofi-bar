@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.lofi-bar" path="/org/gnome/shell/extensions/lofi-bar/">
+    <key name="volume" type="d">
+      <range min="0" max="1"/>
+      <default>0.5</default>
+      <summary>Playback volume</summary>
+      <description>Perceptual volume from 0 to 1, independent of the system volume.</description>
+    </key>
+    <key name="last-station" type="s">
+      <default>''</default>
+      <summary>Last played station</summary>
+      <description>JSON describing the station the play button resumes.</description>
+    </key>
+    <key name="show-title" type="b">
+      <default>false</default>
+      <summary>Show the track in the top bar</summary>
+      <description>Show the current track title next to the icon while playing.</description>
+    </key>
+  </schema>
+</schemalist>

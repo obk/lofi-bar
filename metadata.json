@@ -1,0 +1,15 @@
+{
+  "uuid": "lofi-bar@obk.github.io",
+  "name": "Lofi Bar",
+  "description": "Lofi radio in your top bar. Curated stations play their highest-quality stream (FLAC lossless or 320 kbps), with automatic fallback to the next-best format. More lofi stations come from the Radio Browser directory, each on its best available stream.\n\nScroll on the icon to change the volume. Music keeps playing while the screen is locked.",
+  "shell-version": [
+    "50"
+  ],
+  "session-modes": [
+    "user",
+    "unlock-dialog"
+  ],
+  "settings-schema": "org.gnome.shell.extensions.lofi-bar",
+  "version-name": "1.0",
+  "url": "https://github.com/obk/lofi-bar"
+}

@@ -1,0 +1,4 @@
+*.shell-extension.zip
+schemas/gschemas.compiled
+.test/
+.devkit.log
